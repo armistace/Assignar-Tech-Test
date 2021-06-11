@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+
+  db:
+    build: .
+    ports:
+      - '3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: assignar_admin_pass
+      MYSQL_DATABASE: prd_demo
+      MYSQL_USER: assignar_test
+      MYSQL_PASSWORD: assignar_test_pass
+    volumes:
+      - /var/lib/mysql/data:/code/database/db_files

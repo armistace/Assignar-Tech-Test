@@ -1,0 +1,5 @@
+ut_id,user_type,label
+1,super admin,Super User
+2,fieldworker,Field Worker
+3,subadmin,Dashboard User
+4,public-api,Public API

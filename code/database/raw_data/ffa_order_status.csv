@@ -1,0 +1,9 @@
+status_id,status_name
+7,completed
+2,confirmed
+3,declined
+6,in progress
+4,invoiced
+5,new
+1,pending
+8,quote
