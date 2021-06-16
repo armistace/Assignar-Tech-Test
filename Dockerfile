@@ -4,7 +4,7 @@ FROM mariadb:latest as DATABASE
 
 
 # Install extra system packages
-RUN apt-get update && apt-get install -y python3 python3-pip libmariadb-dev
+RUN apt-get update && apt-get install -y python3 python3-pip libmariadb-dev dos2unix
 
 RUN echo 'copying Code'
 ADD code/ /code/
@@ -17,7 +17,7 @@ ADD code/database/init_sql/ /code/init_sql
 WORKDIR /code/init_sql
 
 RUN echo 'copying init'
-ADD container_files/ /
+ADD code/database/init_sql/ /
 RUN chmod 700 /init_oltp.sh
 
 
