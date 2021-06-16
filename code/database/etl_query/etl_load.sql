@@ -28,31 +28,40 @@ SELECT * FROM ffa_project
 
 --Load Project Hiearchy
 --Do this in python need to work it out recursively
-SELECT   l0.project_id as project_L0
-        ,CASE 
+CREATE OR REPLACE TABLE prd_star.prd_star.H_PROJECT (SELECT l0.project_id as project_L0                                     
+        ,CASE
             WHEN l0.parent_id = 0 THEN 0
-            ELSE l1.project_id
-        END AS project_L1
-        ,CASE 
-            WHEN l1.parent_id = 0 THEN 0
-            ELSE l2.project_id
-        END as project_L2
-FROM ffa_project l0
-LEFT JOIN ffa_project l1 ON l0.parent_id = l1.project_id
-LEFT JOIN 
-        (SELECT main.* FROM ffa_project main
-            INNER JOIN 
-                (SELECT   l1.project_id as project_L0
-                    ,CASE 
-                        WHEN l1.parent_id = 0 THEN 0
-                        ELSE l2.project_id
-                    END AS project_L1
-                FROM ffa_project l1
-                LEFT JOIN ffa_project l2 ON l1.parent_id = l2.project_id
-                ) HIER
-            ON main.project_id = HIER.project_l1
-            WHERE main.parent_id != 0) l2
-ON l1.parent_id = l2.project_id
+            ELSE l1.project_id                                     
+        END AS project_L1                                     
+        ,CASE                                         
+        WHEN l1.parent_id = 0 THEN 0                                         
+        ELSE l2.project_id                                     
+        END AS project_L2                                    
+         ,CASE                                         
+         WHEN l2.parent_id = 0 THEN 0                                         
+         ELSE l3.project_id                                     
+         END AS project_L3 
+         FROM ffa_project l0                                        
+         LEFT JOIN                                            
+         (SELECT project_id                                             
+         FROM prd_demo.ffa_project                                            
+         WHERE parent_id in (380, 382, 383, 393, 394, 425, 426, 427, 517, 533, 552, 566, 
+         567, 571, 572, 573, 591, 592, 601, 609, 613, 615, 626, 640, 661, 663, 664, 665, 
+         666, 667, 12402, 12440, 12496, 12497, 12505, 12506, 12507, 12529, 12539, 12553)                                        
+         ) l1                                         
+         ON l0.parent_id = l1.project_id                                        
+         LEFT JOIN                                            
+         (SELECT project_id                                             
+         FROM prd_demo.ffa_project                                            
+         WHERE parent_id in (394, 533, 567, 12507)                                        
+         ) l2                                         
+         ON l1.parent_id = l2.project_id                                        
+         LEFT JOIN                                            
+         (SELECT project_id                                             
+         FROM prd_demo.ffa_project                                            
+         WHERE parent_id in (12507)                                        
+         ) l3                                         
+         ON l2.parent_id = l3.project_id
 
 --Supplier clearly needs SCD type 2 (date modified etc) but not not now   
 

@@ -1,9 +1,13 @@
-from ETL.ETL import create_connection, create_table
+from ETL.ETL import create_connection, create_table, create_project_hiearchy
 
-print("Creating Star Schema Datawarehouse from prd_demo")
+
+print("Beginning ETL of prd_demo to prd_star")
+print("--CREATE DATABASE--")
 cur = create_connection()
 
-print("Order is a fact table. Table Generated of ffa_order and ffa_order_status in this table the 'ORDER_COUNT' field is generated to ease creation of metrics on orders")
+print("--ORDER ETL--")
+print("Order is a fact table. Table Generated of ffa_order and ffa_order_status\n\
+      in this table the 'ORDER_COUNT' field is generated to ease creation of metrics on orders\n")
 
 order_fact_sql = ' CREATE OR REPLACE TABLE prd_star.FCT_ORDER \
                             (SELECT     o.id as order_id, \
@@ -30,22 +34,25 @@ order_fact_sql = ' CREATE OR REPLACE TABLE prd_star.FCT_ORDER \
 
 create_table(cur, order_fact_sql, "FACT", "prd_star.FCT_ORDER", "prd_demo.ffa_order")
 
-print("ffa_client works by itself and is the client dimension for Order and also a Project")
+print("--CLIENT ETL--")
+print("ffa_client works by itself and is the client dimension for Order and also a Project\n")
 client_sql = "CREATE OR REPLACE TABLE prd_star.DIM_CLIENT (SELECT * FROM prd_demo.ffa_client)"
 create_table(cur, client_sql, "DIMENSION", "prd_star.DIM_CLIENT", "prd_demo.ffa_client")
 
-print("ffa_project like ffa_client works in a similar way as dimension for orders. However, it has hieararchy which needs to be created")
+print("--PROJECT ETL--")
+print("ffa_project like ffa_client works in a similar way as dimension for orders. However, it has hieararchy which needs to be created\n")
 project_sql = "CREATE OR REPLACE TABLE prd_star.DIM_PROJECT (SELECT * FROM prd_demo.ffa_project)"
 create_table(cur, project_sql, "DIMENSION", "prd_star.DIM_PROJECT", "prd_demo.ffa_project")
 
 print("The Project Hiearchy table is derived from the 'parent_id' field in ffa_project. \n\
-        The ETL.py python has python function that programmiticably detects and builds the sql required. \n\
+        The ETL.py python has a python function that programmatically detects and builds the sql required. \n\
         this in practice would allow for this hiearchy to be of variable size and the etl process would \n\
-        simply add columns as required")
+        simply add Level columns as required\n")
 
-# TODO: Create project hiearchy function
-# create_table(cur, create_project_hiearchy(), "prd_star.H_PROJECT", "prd_demo.ffa_project" )
 
+create_table(cur, create_project_hiearchy(cur), "HIEARCHY", "prd_star.H_PROJECT", "prd_demo.ffa_project" )
+
+print("--SUPPLIER ETL--")
 print("Suppliers requires a rename of the id field to supplier_id for simply relationship identificantion \n\
     Otherwise acts a simple dimenion for order")
 supplier_sql = "CREATE OR REPLACE TABLE prd_star.DIM_SUPPLIER ( \
@@ -64,8 +71,9 @@ supplier_sql = "CREATE OR REPLACE TABLE prd_star.DIM_SUPPLIER ( \
                 )"
 create_table(cur, supplier_sql, "DIMENSION", "prd_star.DIM_SUPPLIER", "prd_demo.ffa_suppliers")
 
-print("Finally the User table, again acts a dimension table for orders. \
-    This joins Usertype and Employment type as these are specific to users and \
+print("--USER ETL--")
+print("Finally the User table, again acts a dimension table for orders. \n\
+    This joins Usertype and Employment type as these are specific to users and \n\
         it makes little sense to split them out for the context of this database")
 
 user_sql = "CREATE OR REPLACE TABLE prd_star.DIM_USER (\
@@ -92,10 +100,7 @@ user_sql = "CREATE OR REPLACE TABLE prd_star.DIM_USER (\
                 )"
 create_table(cur, user_sql, "DIMENSION", "prd_star.DIM_USER", "prd_demo.ffa_user_type")
 
-print("In an ideal world all the dimension tables and order tables would of course be SCD_Type2. However, in the interests of\
-        time I have chosen to simply convert to a simple star schema based of the data provided and not implement a SCD_Type2 Loader\
+print("In an ideal world all the dimension tables and order tables would of course be SCD_Type2. However, in the interests of\n\
+        time I have chosen to simply convert to a simple star schema based of the data provided and not implement a SCD_Type2 Loader\n\
         to get data into prd_star")
 
-print("A web page will now open and take over the answering of questions")
-
-# TODO: implement flask app to run SQL queries based on answers

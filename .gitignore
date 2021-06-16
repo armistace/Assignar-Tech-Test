@@ -1,1 +1,3 @@
 .vscode
+*pycache*
+assignar_test.session.sql
